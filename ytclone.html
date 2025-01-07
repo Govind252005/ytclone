@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>youtube.com clone</title>
+    <style> 
+        .search-bar {
+            font-size: 20px;
+            margin-left: 12px;
+            margin-bottom: 10px;
+            display: block;
+            width: 300px;
+        }
+        .thumbnail {
+            width: 300px;
+            object-fit: cover;
+            display: block;
+        }
+        .example, .example1 {
+            display: inline-block;
+            width: 300px;
+            margin-right: 20px;
+            vertical-align: top;
+        }
+        .channel-info {
+            display: flex; /* Use flexbox for alignment */
+            align-items: flex-start; /* Align items at the start */
+            gap: 10px; /* Add space between elements */
+        }
+        .channel-pic {
+            flex-shrink: 0; /* Prevent shrinking of channel pic */
+        }
+        .channel-pic img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%; /* Make the image circular */
+        }
+        .video-abc {
+            flex-grow: 1; /* Allow the text to take the remaining space */
+        }
+        .video-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .author, .stat {
+            font-size: 14px;
+            margin: 0;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <input class="search-bar" type="text" placeholder="search">
+    <div class="example1">
+        <a href="https://www.youtube.com/watch?v=XO8wew38VM8=example1" >
+        <div><img class="thumbnail" src="thumbnails/hq720 (1).avif"></div>
+        <div class="channel-info">
+            <div class="channel-pic"><img src="channel-profile/channels4_profile (1).jpg"></div>
+            <div class="video-abc">
+                <p class="video-title">
+                    MILLIONAIRE SONG (Full Video): ‪@YoYoHoneySingh‬ | GLORY | BHUSHAN KUMAR
+                </p>
+                <p class="author">T-series</p>
+                <p class="stat">236M views &middot; 4 months ago</p>
+            </div>
+        </div>
+    </a>
+    </div>
+
+    <div class="example">
+        <a href="https://www.youtube.com/watch?v=dHsV56I1GwE=example" >
+        <div><img class="thumbnail" src="thumbnails/hq720.avif"></div>
+        <div class="channel-info">
+            <div class="channel-pic"><img src="channel-profile/channels4_profile.jpg"></div>
+            <div class="video-abc">
+                <p class="video-title">
+                    Dope Shope (Full Song) | Yo Yo Honey Singh | Deep Money | Latest Punjabi Song 2023
+                </p>
+                <p class="author">Being Punjabi</p>
+                <p class="stat">47M views &middot; 1 year ago</p>
+            </div>
+        </div>
+    </a>
+    </div>
+</body>
+</html>
