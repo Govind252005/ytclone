@@ -1,0 +1,115 @@
+import cv2
+import threading
+from tkinter import Tk, Button, Canvas
+from PIL import Image, ImageTk
+import numpy as np  # Add this import statement
+
+# Load YOLO pre-trained weights and configuration file for object detection
+net = cv2.dnn.readNet('yolo/yolov3.weights', 'yolo/yolov3.cfg')
+
+# Load the class labels YOLO can detect (this includes cars, trucks, pedestrians, etc.)
+with open('yolo/coco.names', 'r') as f:
+    classes = [line.strip() for line in f.readlines()]
+
+layer_names = net.getLayerNames()
+output_layers = [layer_names[i - 1] for i in net.getUnconnectedOutLayers()]
+
+# Global flag to control the video stream
+stop_stream = False
+
+def get_objects(frame):
+    """Detect objects in the frame using YOLO."""
+    height, width, channels = frame.shape
+    blob = cv2.dnn.blobFromImage(frame, 0.00392, (416, 416), (0, 0, 0), True, crop=False)
+    net.setInput(blob)
+    detections = net.forward(output_layers)
+
+    object_labels = []  # To store detected object names
+    for detection in detections:
+        for obj in detection:
+            scores = obj[5:]
+            class_id = np.argmax(scores)
+            confidence = scores[class_id]
+            if confidence > 0.5:  # Confidence threshold
+                label = classes[class_id]
+                object_labels.append(label)  # Append the detected object name
+    return object_labels
+
+def video_stream(canvas, video_writer):
+    global stop_stream
+
+    # Define the video capture object
+    cap = cv2.VideoCapture(0)
+
+    if not cap.isOpened():
+        print("Error: Could not open the camera.")
+        return
+
+    while not stop_stream:
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Unable to read from camera.")
+            break
+
+        # Get the detected objects
+        object_labels = get_objects(frame)
+
+        # Draw the detected object label on the frame
+        for label in object_labels:
+            cv2.putText(frame, label, (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (255, 255, 0), 2)
+
+        # Write the frame into the file
+        video_writer.write(frame)
+
+        # Convert frame for tkinter display
+        frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame_pil = Image.fromarray(frame_rgb)
+        frame_tk = ImageTk.PhotoImage(image=frame_pil)
+
+        # Update the canvas with the current frame
+        canvas.create_image(0, 0, anchor="nw", image=frame_tk)
+        canvas.image = frame_tk  # Prevent garbage collection of the image
+
+        canvas.update_idletasks()  # Update the canvas without label.update_idletasks()
+
+    cap.release()
+    video_writer.release()
+    print("Recording stopped.")
+
+def stop_streaming():
+    global stop_stream
+    stop_stream = True
+
+def start_recording():
+    global stop_stream
+    stop_stream = False
+
+    # Define the codec and create VideoWriter object
+    frame_width, frame_height = 640, 480  # Default resolution
+    output_file = "output.mp4"
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for MP4
+    video_writer = cv2.VideoWriter(output_file, fourcc, 20.0, (frame_width, frame_height))
+
+    # Start video stream in a thread
+    threading.Thread(
+        target=video_stream,
+        args=(canvas, video_writer),
+        daemon=True
+    ).start()
+
+# Initialize tkinter GUI
+root = Tk()
+root.title("Live Video Feed with Object Detection")
+
+# Add a canvas for displaying the video feed
+canvas = Canvas(root, width=640, height=480)
+canvas.pack()
+
+# Add a button to stop the video stream
+Button(root, text="Stop Stream", command=stop_streaming, font=("Arial", 14), bg="red", fg="white").pack(pady=10)
+
+# Start the video stream
+start_recording()
+
+# Run the tkinter main loop
+root.mainloop()
